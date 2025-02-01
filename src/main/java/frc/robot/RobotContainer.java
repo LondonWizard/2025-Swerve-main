@@ -22,7 +22,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.commands.ControllerLogging;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.IntakeCommand;
+import frc.robot.commands.OuttakeCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -30,6 +33,7 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.intake.Intake;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -103,6 +107,18 @@ public class RobotContainer {
         "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    autoChooser.addOption(
+        "Intake SysID (Dynamic Forward)",
+        Intake.getInstance().sysIdDynamic(SysIdRoutine.Direction.kForward));
+    autoChooser.addOption(
+        "Intake SysID (Dynamic Reverse)",
+        Intake.getInstance().sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    autoChooser.addOption(
+        "Intake SysID (Quasistatic Forward)",
+        Intake.getInstance().sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    autoChooser.addOption(
+        "Intake SysID (Quasistatic Reverse)",
+        Intake.getInstance().sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
     // Configure the button bindings
     configureButtonBindings();
@@ -146,6 +162,12 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
                     drive)
                 .ignoringDisable(true));
+
+    controller.rightTrigger().whileTrue(new IntakeCommand());
+    controller.leftTrigger().whileTrue(new OuttakeCommand());
+
+    controller.rightTrigger().whileTrue(ControllerLogging.rightTriggerOn());
+    controller.rightTrigger().whileFalse(ControllerLogging.rightTriggerOff());
   }
 
   /**

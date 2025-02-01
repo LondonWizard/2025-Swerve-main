@@ -34,4 +34,16 @@ public final class Constants {
     /** Replaying from a log file. */
     REPLAY
   }
+
+  public final class Intake {
+    public static final int motorId = 17;
+    public static final boolean motorInverted = false;
+    public static final double intakeVelocity = 100;
+    public static final double outtakeVelocity = -100;
+    public static double kP = 0.369162;
+    public static double kI = 0.0;
+    public static double kD = 0.0;
+    public static double kS = 0.1761;
+    public static double kV = 0.12875;
+  }
 }

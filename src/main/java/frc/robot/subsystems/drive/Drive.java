@@ -219,6 +219,14 @@ public class Drive extends SubsystemBase {
 
       // Apply update
       poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
+      AprilTagResult result_a = limelight_a.getEstimate().orElse(null);
+      AprilTagResult result_b = limelight_b.getEstimate().orElse(null);
+      if(result_a != null && !shouldRejectPose(result_a)){
+        xyStdDev = xyStdDevCoeff * Math.pow(limeLight.getEstimate().get().distToTag, 4.0) / limeLight.getEstimate().get().tagCount * limeLight.getEstimate().get().ambiguity;
+            rStdDev = rStdDevCoeff * Math.pow(limeLight.getEstimate().get().distToTag, 4.0) / limeLight.getEstimate().get().tagCount * limeLight.getEstimate().get().ambiguity;
+
+        addVisionMeasurement(result_a.pose, result_a.time, );
+      }
     }
 
     // Update gyro alert

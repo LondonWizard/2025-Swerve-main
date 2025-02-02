@@ -27,6 +27,7 @@ import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -166,6 +167,11 @@ public class Drive extends SubsystemBase {
                 (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
   }
 
+  private double xyStdDevCoeff = 0.7;
+  private double rStdDevCoeff = 2.0;
+  private double xyStdDev = 0.8;
+  private double rStdDev = 9.2;
+
   @Override
   public void periodic() {
     odometryLock.lock(); // Prevents odometry updates while reading data
@@ -222,10 +228,17 @@ public class Drive extends SubsystemBase {
       AprilTagResult result_a = limelight_a.getEstimate().orElse(null);
       AprilTagResult result_b = limelight_b.getEstimate().orElse(null);
       if(result_a != null && !shouldRejectPose(result_a)){
-        xyStdDev = xyStdDevCoeff * Math.pow(limeLight.getEstimate().get().distToTag, 4.0) / limeLight.getEstimate().get().tagCount * limeLight.getEstimate().get().ambiguity;
-            rStdDev = rStdDevCoeff * Math.pow(limeLight.getEstimate().get().distToTag, 4.0) / limeLight.getEstimate().get().tagCount * limeLight.getEstimate().get().ambiguity;
+        xyStdDev = xyStdDevCoeff * Math.pow(result_a.distToTag, 4.0) / result_a.tagCount * result_a.ambiguity;
+        rStdDev = rStdDevCoeff * Math.pow(result_a.distToTag, 4.0) / result_a.tagCount * result_a.ambiguity;
 
-        addVisionMeasurement(result_a.pose, result_a.time, );
+        addVisionMeasurement(result_a.pose, result_a.time, VecBuilder.fill(xyStdDev, xyStdDev, rStdDev));
+      }
+
+      if(result_b != null && !shouldRejectPose(result_b)){
+        xyStdDev = xyStdDevCoeff * Math.pow(result_b.distToTag, 4.0) / result_b.tagCount * result_b.ambiguity;
+        rStdDev = rStdDevCoeff * Math.pow(result_b.distToTag, 4.0) / result_b.tagCount * result_b.ambiguity;
+
+        addVisionMeasurement(result_b.pose, result_b.time, VecBuilder.fill(xyStdDev, xyStdDev, rStdDev));
       }
     }
 
